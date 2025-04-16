@@ -108,22 +108,32 @@ void setup() {
 }
 
 void loop() {
-    // get current time
-    if (!Rtc.IsDateTimeValid()) {
-        Serial.println("RTC lost confidence in the DateTime!");
-    }
-    RtcDateTime now = Rtc.GetDateTime();
-    clockMin = now.Minute();
-    clockHr = now.Hour();
+  // get current time
+  if (!Rtc.IsDateTimeValid()) {
+      Serial.println("RTC lost confidence in the DateTime!");
+  }
 
-    // handle buttons and states
-    handleButtons(now);
+  RtcDateTime now = Rtc.GetDateTime();
 
-    // handle modes
-    handleModes();
+  // update current time variables before using them
+  clockMin = now.Minute();
+  clockHr = now.Hour();
 
-    // update display
-    updateDisplay(now);
+  // alarm time check
+  if ((mode == ModeDoNothing || mode == ModeError) &&
+      clockHr == alarmHr && clockMin == alarmMin && now.Second() == 0) {
+      mode = ModeTimeForFood;
+      Serial.println("ALARM TRIGGERED");
+  }
+
+  // handle buttons and states
+  handleButtons(now);
+
+  // handle modes
+  handleModes();
+
+  // update display
+  updateDisplay(now);
 }
 
 // handle button presses
